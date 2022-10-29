@@ -16,11 +16,25 @@ name = "zero2prod"
 [dependencies]
 actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"]}
+
 # We need the optional `derive` feature to use `serde`'s procedural macros:
 # `#[derive(Serialize)]` and `#[derive(Deserialize)]`.
 # The feature is not enabled by default to avoid pulling in
 # unnecessary dependencies for projects that do not need it.
 serde = { version = "1", features = ["derive"]}
+
+# Using table-like toml syntax to avoid a super-long line!
+[dependencies.sqlx] 
+version = "0.6" 
+default-features = false 
+features = [
+    "runtime-tokio-rustls",
+    "macros",
+    "postgres",
+    "uuid",
+"chrono",
+"migrate"
+]
 
 
 # dev-dependencies are used exclusively when 
