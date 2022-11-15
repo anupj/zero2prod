@@ -27,5 +27,6 @@ async fn main() -> std::io::Result<()> {
 
     // Call await on the returned `Server`
     run(listener, connection_pool)?.await?;
+
     Ok(())
 }
