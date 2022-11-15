@@ -41,10 +41,10 @@ features = [
     "macros",
     "postgres",
     "uuid",
-"chrono",
-"migrate"
+    "chrono",
+    "migrate",
+    "offline",
 ]
-
 
 # dev-dependencies are used exclusively when 
 # running tests or examples. They do not get
