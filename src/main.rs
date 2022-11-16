@@ -15,12 +15,14 @@ async fn main() -> std::io::Result<()> {
 
     // Get connection pool
     let connection_pool =
-        PgPool::connect(configuration.database.connection_string().expose_secret())
-            .await
+        PgPool::connect_lazy(&configuration.database.connection_string().expose_secret())
             .expect("Failed to connect to Postgres.");
 
     // We have removed the hard-coded `8000` - it's now coming from our settings!
-    let address = format!("127.0.0.1:{}", configuration.application_port);
+    let address = format!(
+        "{}:{}",
+        configuration.application.host, configuration.application.port
+    );
 
     // Bubble up the io::Error if we failed to bind the address
     let listener = TcpListener::bind(address)?;
