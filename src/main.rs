@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
 
     // Get connection pool
     let connection_pool =
-        PgPool::connect_lazy(&configuration.database.connection_string().expose_secret())
+        PgPool::connect_lazy(configuration.database.connection_string().expose_secret())
             .expect("Failed to connect to Postgres.");
 
     // We have removed the hard-coded `8000` - it's now coming from our settings!
