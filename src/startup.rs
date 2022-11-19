@@ -14,6 +14,7 @@ pub fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server, std::io::Er
     // Wrap the pool in an ARC smart pointer
     // so that it can be shared by multiple
     // instances of App thread (one for each core)
+    // Data - internally uses an Arc
     let db_pool = Data::new(db_pool);
     // capture the `connection` in the closure
     // from the surrounding environment
