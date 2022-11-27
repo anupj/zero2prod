@@ -7,7 +7,7 @@ pub struct EmailClient {
     sender: SubscriberEmail,
     http_client: Client,
     base_url: String,
-    authorisation_token: Secret<String>,
+    authorization_token: Secret<String>,
 }
 
 impl EmailClient {
@@ -21,7 +21,7 @@ impl EmailClient {
             http_client: Client::builder().timeout(timeout).build().unwrap(),
             base_url,
             sender,
-            authorisation_token,
+            authorization_token: authorisation_token,
         }
     }
     pub async fn send_email(
@@ -43,7 +43,7 @@ impl EmailClient {
             .post(&url)
             .header(
                 "X-Postmark-Server-Token",
-                self.authorisation_token.expose_secret(),
+                self.authorization_token.expose_secret(),
             )
             .json(&request_body)
             // `send` is async so we need to await
