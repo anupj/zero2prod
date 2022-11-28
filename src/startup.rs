@@ -84,8 +84,9 @@ pub fn run(
             .wrap(TracingLogger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
-            // Register the connection as part of the application state
+            // Register the db_pool connection as part of the application state
             .app_data(db_pool.clone())
+            // Register the email client
             .app_data(email_client.clone())
     })
     .listen(listener)?
