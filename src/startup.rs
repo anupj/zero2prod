@@ -1,6 +1,7 @@
 use crate::configuration::DatabaseSettings;
 use crate::configuration::Settings;
 use crate::email_client::EmailClient;
+use crate::routes::confirm;
 use crate::routes::{health_check, subscribe};
 use actix_web::dev::Server;
 use actix_web::web::Data;
@@ -39,7 +40,12 @@ impl Application {
         );
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();
-        let server = run(listener, connection_pool, email_client)?;
+        let server = run(
+            listener,
+            connection_pool,
+            email_client,
+            configuration.application.base_url,
+        )?;
         // We "save" the bound port in one of `Application`'s fields
         Ok(Self { port, server })
     }
@@ -59,14 +65,18 @@ pub fn get_connection_pool(configuration: &DatabaseSettings) -> PgPool {
         .acquire_timeout(std::time::Duration::from_secs(2))
         .connect_lazy_with(configuration.with_db())
 }
-/// Notice the different signature!
-/// We return `Server` on the happy path
-/// and we dropped the `async` keyword
-/// We have no `.await` call, so it is not needed anymore.
+
+// We need to define a wrapper type in order to retrieve the URL
+// in the `subscribe` handler.
+// Retrieval from the context, in actix-web, is type-based: using
+// a raw `String` would expose us to conflicts
+pub struct ApplicationBaseUrl(pub String);
+
 pub fn run(
     listener: TcpListener,
     db_pool: PgPool,
     email_client: EmailClient,
+    base_url: String,
 ) -> Result<Server, std::io::Error> {
     // Wrap the pool and the email client in an
     // ARC smart pointer so that it
@@ -75,6 +85,7 @@ pub fn run(
     // Data - internally uses an Arc
     let db_pool = Data::new(db_pool);
     let email_client = Data::new(email_client);
+    let base_url = Data::new(ApplicationBaseUrl(base_url));
 
     // capture the `connection` in the closure
     // from the surrounding environment
@@ -84,10 +95,12 @@ pub fn run(
             .wrap(TracingLogger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
+            .route("/subscriptions/confirm", web::get().to(confirm))
             // Register the db_pool connection as part of the application state
             .app_data(db_pool.clone())
             // Register the email client
             .app_data(email_client.clone())
+            .app_data(base_url.clone())
     })
     .listen(listener)?
     .run();
