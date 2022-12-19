@@ -16,14 +16,14 @@ name = "zero2prod"
 [dependencies]
 validator = "0.14"
 unicode-segmentation = "1"
-tracing-actix-web = "0.6"
+tracing-actix-web = "0.4.0-beta.8"
 secrecy = { version = "0.8", features = ["serde"] }
 tracing = { version = "0.1", features = ["log"]}
 tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
-tracing-bunyan-formatter = "0.3"
+tracing-bunyan-formatter = "0.2.4"
 tracing-log = "0.1"
 config = "0.13"
-actix-web = "4"
+actix-web = "4.0.0-beta.8"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"]}
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
