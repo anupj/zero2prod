@@ -36,6 +36,7 @@ rand = { version = "0.8", features=["std_rng"] }
 serde = { version = "1", features = ["derive"]}
 serde-aux = "3"
 thiserror = "1"
+anyhow = "1"
 
 # Using table-like toml syntax to avoid a super-long line!
 [dependencies.sqlx] 
