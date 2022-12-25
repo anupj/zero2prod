@@ -28,6 +28,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"]}
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 rand = { version = "0.8", features=["std_rng"] }
+base64 = "0.13"
 
 # We need the optional `derive` feature to use `serde`'s procedural macros:
 # `#[derive(Serialize)]` and `#[derive(Deserialize)]`.
