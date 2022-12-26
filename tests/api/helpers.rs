@@ -1,5 +1,5 @@
 use argon2::password_hash::SaltString;
-use argon2::{Argon2, PasswordHasher};
+use argon2::{Algorithm, Argon2, Params, PasswordHasher, Version};
 use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
@@ -26,14 +26,15 @@ impl TestUser {
 
     async fn store(&self, pool: &PgPool) {
         let salt = SaltString::generate(&mut rand::thread_rng());
-
-        // We don't care abou the exact Argon2 params here
-        // given that it's for testing purposes!
-        let password_hash = Argon2::default()
-            .hash_password(self.password.as_bytes(), &salt)
-            .unwrap()
-            .to_string();
-
+        // Match parameters of the default password
+        let password_hash = Argon2::new(
+            Algorithm::Argon2id,
+            Version::V0x13,
+            Params::new(15000, 2, 1, None).unwrap(),
+        )
+        .hash_password(self.password.as_bytes(), &salt)
+        .unwrap()
+        .to_string();
         sqlx::query!(
             "INSERT INTO users (user_id, username, password_hash) VALUES ($1, $2, $3)",
             self.user_id,
@@ -55,10 +56,18 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     // same type. We could work around it, but this is the most
     // straight-forward way of moving forward
     if std::env::var("TEST_LOG").is_ok() {
-        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
+        let subscriber = get_subscriber(
+            subscriber_name,
+            default_filter_level,
+            std::io::stdout,
+        );
         init_subscriber(subscriber);
     } else {
-        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::sink);
+        let subscriber = get_subscriber(
+            subscriber_name,
+            default_filter_level,
+            std::io::sink,
+        );
         init_subscriber(subscriber);
     };
 });
@@ -75,7 +84,7 @@ pub struct TestApp {
     pub db_pool: PgPool,
     pub email_server: MockServer,
     pub port: u16,
-    test_user: TestUser,
+    pub test_user: TestUser,
 }
 
 impl TestApp {
@@ -91,8 +100,12 @@ impl TestApp {
 
     /// Extract the confirmation links embedded in
     /// the request to the email API
-    pub fn get_confirmation_links(&self, email_request: &wiremock::Request) -> ConfirmationLinks {
-        let body: serde_json::Value = serde_json::from_slice(&email_request.body).unwrap();
+    pub fn get_confirmation_links(
+        &self,
+        email_request: &wiremock::Request,
+    ) -> ConfirmationLinks {
+        let body: serde_json::Value =
+            serde_json::from_slice(&email_request.body).unwrap();
         // Extract the link from one of the request fields.
         let get_link = |s: &str| {
             let links: Vec<_> = linkify::LinkFinder::new()
@@ -112,11 +125,17 @@ impl TestApp {
         ConfirmationLinks { html, plain_text }
     }
 
-    pub async fn post_newsletters(&self, body: serde_json::Value) -> reqwest::Response {
+    pub async fn post_newsletters(
+        &self,
+        body: serde_json::Value,
+    ) -> reqwest::Response {
         reqwest::Client::new()
             .post(&format!("{}/newsletters", &self.address))
             // `reqwest` does all the encoding/formatting heavy-lifting for us.
-            .basic_auth(&self.test_user.username, Some(&self.test_user.password))
+            .basic_auth(
+                &self.test_user.username,
+                Some(&self.test_user.password),
+            )
             .json(&body)
             .send()
             .await
@@ -171,7 +190,9 @@ async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .await
         .expect("Failed to connect to Postgres");
     connection
-        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .execute(
+            format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str(),
+        )
         .await
         .expect("Failed to create database.");
 
