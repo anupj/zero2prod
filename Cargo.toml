@@ -30,6 +30,8 @@ chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 rand = { version = "0.8", features=["std_rng"] }
 base64 = "0.13"
 argon2 = { version = "0.4", features = ["std"] }
+urlencoding = "2"
+htmlescape = "0.3"
 
 # We need the optional `derive` feature to use `serde`'s procedural macros:
 # `#[derive(Serialize)]` and `#[derive(Deserialize)]`.
