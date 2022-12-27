@@ -1,6 +1,9 @@
 use crate::configuration::DatabaseSettings;
 use crate::configuration::Settings;
 use crate::email_client::EmailClient;
+use crate::routes::home;
+use crate::routes::login;
+use crate::routes::login_form;
 use crate::routes::{confirm, health_check, publish_newsletter, subscribe};
 use actix_web::dev::Server;
 use actix_web::web::Data;
@@ -20,7 +23,9 @@ pub struct Application {
 impl Application {
     // We have converted the `build` function into a constructor for
     // `Application`.
-    pub async fn build(configuration: Settings) -> Result<Self, std::io::Error> {
+    pub async fn build(
+        configuration: Settings,
+    ) -> Result<Self, std::io::Error> {
         let connection_pool = get_connection_pool(&configuration.database);
         let sender_email = configuration
             .email_client
@@ -96,6 +101,9 @@ pub fn run(
             .route("/subscriptions", web::post().to(subscribe))
             .route("/subscriptions/confirm", web::get().to(confirm))
             .route("/newsletters", web::post().to(publish_newsletter))
+            .route("/", web::get().to(home))
+            .route("/login", web::get().to(login_form))
+            .route("/login", web::post().to(login))
             // Register the db_pool connection as part of the application state
             .app_data(db_pool.clone())
             // Register the email client
