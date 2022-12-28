@@ -1,7 +1,7 @@
 # configuration/base.yaml
 application: 
   port: 8000
-  hmac_secret: "whatever-it-is-that-rocks-your-boat"
+  hmac_secret: "whatever-it-is-that-rocks-your-boat-then-that-is-your-gig-random-words-until-i-get-success"
 database:
   host: "localhost"
   port: 5432

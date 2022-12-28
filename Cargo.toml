@@ -35,6 +35,7 @@ htmlescape = "0.3"
 hmac = { version = "0.12", features = ["std"] }
 sha2 = "0.10"
 hex = "0.4"
+actix-web-flash-messages = { version = "0.4", features = ["cookies"] }
 
 # We need the optional `derive` feature to use `serde`'s procedural macros:
 # `#[derive(Serialize)]` and `#[derive(Deserialize)]`.
@@ -63,7 +64,7 @@ features = [
 version = "0.11"
 default-features = false
 # We need the `json` feature flag to serialize/deserialize JSON payloads 
-features = ["json", "rustls-tls"]
+features = ["cookies", "json", "rustls-tls"]
 
 # dev-dependencies are used exclusively when 
 # running tests or examples. They do not get
