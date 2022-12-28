@@ -20,6 +20,7 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub host: String,
     pub base_url: String,
+    pub hmac_secret: Secret<String>,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -42,7 +43,8 @@ pub struct EmailClientSettings {
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
-    let base_path = std::env::current_dir().expect("Failed to determine the current directory");
+    let base_path = std::env::current_dir()
+        .expect("Failed to determine the current directory");
     let configuration_directory = base_path.join("configuration");
 
     // Detect the running environment

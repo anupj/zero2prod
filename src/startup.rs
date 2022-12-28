@@ -8,6 +8,7 @@ use crate::routes::{confirm, health_check, publish_newsletter, subscribe};
 use actix_web::dev::Server;
 use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
+use secrecy::Secret;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 use std::net::TcpListener;
@@ -19,6 +20,9 @@ pub struct Application {
     port: u16,
     server: Server,
 }
+
+#[derive(Clone)]
+pub struct HmacSecret(pub Secret<String>);
 
 impl Application {
     // We have converted the `build` function into a constructor for
@@ -49,6 +53,7 @@ impl Application {
             connection_pool,
             email_client,
             configuration.application.base_url,
+            configuration.application.hmac_secret,
         )?;
         // We "save" the bound port in one of `Application`'s fields
         Ok(Self { port, server })
@@ -81,6 +86,7 @@ pub fn run(
     db_pool: PgPool,
     email_client: EmailClient,
     base_url: String,
+    hmac_secret: Secret<String>,
 ) -> Result<Server, std::io::Error> {
     // Wrap the pool and the email client in an
     // ARC smart pointer so that it
@@ -109,6 +115,7 @@ pub fn run(
             // Register the email client
             .app_data(email_client.clone())
             .app_data(base_url.clone())
+            .app_data(Data::new(HmacSecret(hmac_secret.clone())))
     })
     .listen(listener)?
     .run();
