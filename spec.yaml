@@ -1,10 +1,6 @@
-#!spec.yaml
 name: zero2prod
-# Check https://www.digitalocean.com/docs/app-platform/#regional-availability
-# for a list of all the available options.
-# You can get region slugs from
-# https://www.digitalocean.com/docs/platform/availability-matrix/
-# They must specified lowercased.
+# See https://www.digitalocean.com/docs/app-platform/#regional-availability for the available options
+# You can get region slugs from https://www.digitalocean.com/docs/platform/availability-matrix/
 # `fra` stands for Frankfurt (Germany - EU)
 region: fra
 services:
@@ -13,25 +9,27 @@ services:
     dockerfile_path: Dockerfile
     source_dir: .
     github:
-      branch: main
-      # Deploy a new version on every commit to `main`!
-      # Continuous deployment, here we come!
+      branch: root-chapter-10-part2
       deploy_on_push: true
-      repo: anupj/zero2prod
-    # Active probe used by DO's to ensure our app is healthy
+      repo: LukeMathWalker/zero-to-production
+    # Active probe used by DigitalOcean's to ensure our application is healthy
     health_check:
-      # The path to our health check endpoint
+      # The path to our health check endpoint! It turned out to be useful in the end!
       http_path: /health_check
-    # The port the app will be listening on for incoming requests
-    # It should match what we specified in our configuration/production.yaml file!
+    # The port the application will be listening on for incoming requests
+    # It should match what we specify in our configuration.yaml file!
     http_port: 8000
+    # For production workloads we'd go for at least two!
     instance_count: 1
+    # Let's keep the bill lean for now...
     instance_size_slug: basic-xxs
     # All incoming requests should be routed to our app
     routes:
       - path: /
-    # Inject environment variables
-    envs: 
+    envs:
+      - key: APP_APPLICATION__BASE_URL
+        scope: RUN_TIME
+        value: ${APP_URL}
       - key: APP_DATABASE__USERNAME
         scope: RUN_TIME
         value: ${newsletter.USERNAME}
@@ -47,11 +45,6 @@ services:
       - key: APP_DATABASE__DATABASE_NAME
         scope: RUN_TIME
         value: ${newsletter.DATABASE}
-      - key: APP_APPLICATION_BASE_URL
-        scope: RUN_TIME
-        value: ${APP_URL}
-
-# Database setup
 databases:
   # PG = Postgres
   - engine: PG

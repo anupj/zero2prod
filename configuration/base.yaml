@@ -1,6 +1,7 @@
 # configuration/base.yaml
 application: 
   port: 8000
+  host: 0.0.0.0
   hmac_secret: "whatever-it-is-that-rocks-your-boat-then-that-is-your-gig-random-words-until-i-get-success"
 database:
   host: "localhost"
@@ -13,3 +14,4 @@ email_client:
   sender_email: "test@gmail.com"
   authorization_token: "my-secret-token"
   timeout_milliseconds: 1000
+redis_uri: "redis://127.0.0.1:6379"

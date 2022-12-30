@@ -1,5 +1,6 @@
 use crate::authentication::{validate_credentials, AuthError, Credentials};
 use crate::routes::error_chain_fmt;
+use actix_session::Session;
 use actix_web::error::InternalError;
 use actix_web::{web, HttpResponse};
 use actix_web_flash_messages::FlashMessage;
@@ -28,12 +29,13 @@ impl std::fmt::Debug for LoginError {
 }
 
 #[tracing::instrument(
-    skip(form, pool),
+    skip(form, pool, session),
     fields(username=tracing::field::Empty, user_id=tracing::field::Empty)
     )]
 pub async fn login(
     form: web::Form<FormData>,
     pool: web::Data<PgPool>,
+    session: Session,
 ) -> Result<HttpResponse, InternalError<LoginError>> {
     // Extract the creds from the incoming form
     let credentials = Credentials {
@@ -48,8 +50,19 @@ pub async fn login(
         Ok(user_id) => {
             tracing::Span::current()
                 .record("user_id", &tracing::field::display(&user_id));
+            // renew the session after login is called
+            // to prevent session fixation attacks
+            session.renew();
+            // insert the logged in user to the session
+            // "in memory" - this does not affect the state
+            // of the session as seen by the storage
+            // backend
+            session.insert("user_id", user_id).map_err(|e| {
+                login_redirect(LoginError::UnexpectedError(e.into()))
+            })?;
+
             Ok(HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/"))
+                .insert_header((LOCATION, "/admin/dashboard"))
                 .finish())
         }
         Err(e) => {
@@ -61,12 +74,16 @@ pub async fn login(
                     LoginError::UnexpectedError(e.into())
                 }
             };
-
-            FlashMessage::error(e.to_string()).send();
-            let response = HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/login"))
-                .finish();
-            Err(InternalError::from_response(e, response))
+            Err(login_redirect(e))
         }
     }
+}
+
+// Redirect to the login page with an error message
+fn login_redirect(e: LoginError) -> InternalError<LoginError> {
+    FlashMessage::error(e.to_string()).send();
+    let response = HttpResponse::SeeOther()
+        .insert_header((LOCATION, "/login"))
+        .finish();
+    InternalError::from_response(e, response)
 }
