@@ -1,5 +1,6 @@
 use crate::authentication::{validate_credentials, AuthError, Credentials};
 use crate::routes::error_chain_fmt;
+use crate::session_state::TypedSession;
 use actix_session::Session;
 use actix_web::error::InternalError;
 use actix_web::{web, HttpResponse};
@@ -35,7 +36,7 @@ impl std::fmt::Debug for LoginError {
 pub async fn login(
     form: web::Form<FormData>,
     pool: web::Data<PgPool>,
-    session: Session,
+    session: TypedSession,
 ) -> Result<HttpResponse, InternalError<LoginError>> {
     // Extract the creds from the incoming form
     let credentials = Credentials {
@@ -57,7 +58,7 @@ pub async fn login(
             // "in memory" - this does not affect the state
             // of the session as seen by the storage
             // backend
-            session.insert("user_id", user_id).map_err(|e| {
+            session.insert_user_id(user_id).map_err(|e| {
                 login_redirect(LoginError::UnexpectedError(e.into()))
             })?;
 
