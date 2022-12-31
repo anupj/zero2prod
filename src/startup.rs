@@ -1,10 +1,8 @@
 use crate::configuration::DatabaseSettings;
 use crate::configuration::Settings;
 use crate::email_client::EmailClient;
-use crate::routes::admin_dashboard;
-use crate::routes::home;
-use crate::routes::login;
-use crate::routes::login_form;
+use crate::routes::{admin_dashboard, home, login, login_form};
+use crate::routes::{change_password, change_password_form};
 use crate::routes::{confirm, health_check, publish_newsletter, subscribe};
 use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
@@ -134,6 +132,8 @@ async fn run(
             .route("/", web::get().to(home))
             .route("/login", web::get().to(login_form))
             .route("/login", web::post().to(login))
+            .route("admin/password", web::get().to(change_password_form))
+            .route("admin/password", web::post().to(change_password))
             // Register the db_pool connection as part of the application state
             .app_data(db_pool.clone())
             // Register the email client
