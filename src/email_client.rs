@@ -85,7 +85,8 @@ mod tests {
     impl wiremock::Match for SendEmailBodyMatcher {
         fn matches(&self, request: &wiremock::Request) -> bool {
             // Try to parse the body as a JSON value
-            let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
+            let result: Result<serde_json::Value, _> =
+                serde_json::from_slice(&request.body);
             if let Ok(body) = result {
                 // Check that all the mandatory fields are
                 // populated without inspecting the field value
