@@ -51,7 +51,7 @@ pub async fn change_password(
                     .send();
                 Ok(see_other("/admin/password"))
             }
-            AuthError::UnexpectedError(_) => Err(e500(e).into()),
+            AuthError::UnexpectedError(_) => Err(e500(e)),
         };
     }
     crate::authentication::change_password(user_id, form.0.new_password, &pool)

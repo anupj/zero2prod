@@ -37,7 +37,8 @@ pub async fn subscribe(
     // Get the subscriber details from the incoming request
     // `web::Form` is a wrapper around `FormData`
     // `form.0` gives us access to the underlying `FormData`
-    let new_subscriber = form.0.try_into().map_err(SubscribeError::ValidationError)?;
+    let new_subscriber =
+        form.0.try_into().map_err(SubscribeError::ValidationError)?;
 
     // Start the transaction for db operations
     let mut transaction = pool
@@ -60,10 +61,9 @@ pub async fn subscribe(
         )?;
 
     // Commit the transaction
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to store a new subscriber.")?;
+    transaction.commit().await.context(
+        "Failed to commit SQL transaction to store a new subscriber.",
+    )?;
 
     // Send a (useless) email to the new subscriber.
     // We are ignoring email delivery errors for now.
@@ -97,7 +97,9 @@ impl ResponseError for SubscribeError {
     fn status_code(&self) -> StatusCode {
         match self {
             SubscribeError::ValidationError(_) => StatusCode::BAD_REQUEST,
-            SubscribeError::UnexpectedError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            SubscribeError::UnexpectedError(_) => {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
         }
     }
 }
@@ -119,7 +121,7 @@ pub async fn store_token(
     )
     .execute(transaction)
     .await
-    .map_err(|e| StoreTokenError(e))?;
+    .map_err(StoreTokenError)?;
     Ok(())
 }
 
@@ -230,8 +232,7 @@ pub async fn insert_subscriber(
         Utc::now(),
     )
     .execute(transaction)
-    .await
-    .map_err(|e| e)?;
+    .await?;
     Ok(subscriber_id)
 }
 
