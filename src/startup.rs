@@ -2,6 +2,7 @@ use crate::authentication::reject_anonymous_users;
 use crate::configuration::DatabaseSettings;
 use crate::configuration::Settings;
 use crate::email_client::EmailClient;
+use crate::routes::publish_newsletter_form;
 use crate::routes::{admin_dashboard, home, log_out, login, login_form};
 use crate::routes::{change_password, change_password_form};
 use crate::routes::{confirm, health_check, publish_newsletter, subscribe};
@@ -138,6 +139,11 @@ async fn run(
                 web::scope("/admin")
                     .wrap(from_fn(reject_anonymous_users))
                     .route("/dashboard", web::get().to(admin_dashboard))
+                    .route(
+                        "/newsletters",
+                        web::get().to(publish_newsletter_form),
+                    )
+                    .route("/newsletters", web::post().to(publish_newsletter))
                     .route("/password", web::get().to(change_password_form))
                     .route("/password", web::post().to(change_password))
                     .route("/logout", web::post().to(log_out)),
