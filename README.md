@@ -1,6 +1,11 @@
-I've followed along the implementation in the book - [Zero To Production In Rust](https://zero2prod.com): an opinionated introduction to backend development using Rust.
+# Introduction
 
-Great book if you want to learn Rust by implementing a real-world production ready app.
+I've followed along the implementation in the book -
+[Zero To Production In Rust](https://zero2prod.com): an opinionated introduction to backend development using Rust.
+
+It's a great resource if you want to learn
+[Rust](https://www.rust-lang.org/) and the [Actix-web](https://actix.rs/)
+framework by implementing a real-world production ready app.
 
 ![Build Status](https://github.com/anupj/zero2prod/actions/workflows/general.yml/badge.svg)
 
