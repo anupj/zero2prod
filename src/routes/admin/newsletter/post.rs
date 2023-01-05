@@ -49,6 +49,7 @@ pub async fn publish_newsletter(
             .await
             .map_err(e500)?
     {
+        FlashMessage::info("The newsletter issue has been published!").send();
         return Ok(saved_response);
     }
 
