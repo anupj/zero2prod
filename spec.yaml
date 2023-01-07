@@ -11,7 +11,7 @@ services:
     github:
       branch: main
       deploy_on_push: true
-      repo: LukeMathWalker/zero-to-production
+      repo: anupj/zero2prod
     # Active probe used by DigitalOcean's to ensure our application is healthy
     health_check:
       # The path to our health check endpoint! It turned out to be useful in the end!
