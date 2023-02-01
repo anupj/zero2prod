@@ -1,6 +1,6 @@
 # Introduction
 
-I've followed along the implementation in the book -
+Implementation of the project from the book -
 [Zero To Production In Rust](https://zero2prod.com): an opinionated introduction to backend development using Rust.
 
 It's a great resource if you want to learn
